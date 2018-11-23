@@ -11,5 +11,17 @@ import retrofit2.http.Query
 interface ApiService
 {
     @GET("movie/top_rated")
-        fun getTopMovies(@Query("api_key") action: String):Observable<MovieList>
+    fun getTopMovies(@Query("api_key") action: String):Observable<MovieList>
+
+    companion object {
+        fun create():ApiService{
+            val retrofit = Retrofit.Builder()
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .baseUrl("https://api.themoviedb.org/3/")
+                    .build()
+            return  retrofit.create(ApiService::class.java)
+        }
+    }
+
 }
