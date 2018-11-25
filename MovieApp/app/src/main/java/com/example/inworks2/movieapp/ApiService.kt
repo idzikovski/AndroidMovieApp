@@ -11,7 +11,10 @@ import retrofit2.http.Query
 interface ApiService
 {
     @GET("movie/top_rated")
-    fun getTopMovies(@Query("api_key") action: String):Observable<MovieList>
+    fun getTopMovies(@Query("api_key") apiKey: String):Observable<MovieList>
+
+    @GET("configuration")
+    fun getConfiguration(@Query("api_key") apiKey: String):Observable<Configuration>
 
     companion object {
         fun create():ApiService{
