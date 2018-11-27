@@ -11,6 +11,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import java.net.URL
 import io.reactivex.Observable
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 
 class MoviesAdapter(val items : List<Result>, val context : Context) : RecyclerView.Adapter<MoviesViewHolder>(){
@@ -20,12 +23,28 @@ class MoviesAdapter(val items : List<Result>, val context : Context) : RecyclerV
         viewHolder.itemTitle.text=items[position].title
         viewHolder.itemDetail.text=items[position].overview
 
-        var imageRequest = ImageRequest()
+        val uri=MyApplication.config?.images?.base_url + MyApplication.config?.images!!.poster_sizes[3] + "/" + items[position].poster_path
+
+        fetchImage(uri)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe{ bitmap-> viewHolder.itemImage.setImageBitmap(bitmap)}
+
+        /*var imageRequest = ImageRequest()
         imageRequest.imageView=viewHolder.itemImage
         imageRequest.uri=MyApplication.config?.images?.base_url + MyApplication.config?.images!!.poster_sizes[3] + "/" + items[position].poster_path
-        val task = FetchImage().execute(imageRequest)
+        val task = FetchImage().execute(imageRequest)*/
     }
 
+
+    private fun fetchImage(path : String): Observable<Bitmap>
+    {
+       return Observable.create<Bitmap> {
+            emitter ->
+            val bitmap=BitmapFactory.decodeStream(URL(path).openStream())
+            emitter.onNext(bitmap)
+        }
+    }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, position: Int): MoviesViewHolder {
         val view=LayoutInflater.from(viewGroup.context).inflate(R.layout.card_layout, viewGroup, false)
